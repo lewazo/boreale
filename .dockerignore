@@ -1,0 +1,16 @@
+_build/
+_build_vms/
+deps/
+.git/
+.gitignore
+Dockerfile
+Makefile
+README*
+test/
+examples/
+.formatter.exs
+LICENSE
+logo.svg
+README.md
+*.log
+screenshot.png

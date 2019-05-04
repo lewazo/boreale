@@ -1,0 +1,28 @@
+# This is WIP
+# Windows build currently on hold
+
+VM_NAME = 'boreale-windows'
+VM_USER = 'vagrant'
+
+Vagrant.configure(2) do |config|
+  config.vm.box = 'gusztavvargadr/windows-10'
+  config.vm.guest = :windows
+
+  config.vm.communicator = :winrm
+  config.winrm.username = "vagrant"
+  config.winrm.password = "vagrant"
+
+  config.vm.hostname = VM_NAME
+  config.vm.provider "virtualbox" do |v|
+    v.name = VM_NAME
+    v.gui = false
+    v.memory = 2048
+  end
+
+  config.vm.synced_folder "../../.", "C:\\Users\\vagrant\\boreale-macos"
+  # config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  config.vm.provision "shell", inline: <<-SHELL
+    choco upgrade firefox googlechrome -y
+  SHELL
+end

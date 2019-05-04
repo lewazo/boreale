@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title><%=Application.get_env(:boreale, Boreale)[:page_title]%></title>
+    <style>
+      <%= if File.cwd! |> Path.join("data/login.css") |> File.exists? do %>
+        <%= File.cwd! |> Path.join("data/login.css") |> File.read() |> elem(1) %>
+      <% else %>
+        <%= Application.app_dir(:boreale, "priv/login.css") |> File.read() |> elem(1) %>
+      <% end %>
+    </style>
+  </head>
+  <body>
+    <%= if File.cwd! |> Path.join("data/login.html") |> File.exists? do %>
+      <%= File.cwd! |> Path.join("data/login.html") |> File.read() |> elem(1) %>
+    <% else %>
+      <%= Application.app_dir(:boreale, "priv/login.html") |> File.read() |> elem(1) %>
+    <% end %>
+  </body>
+</html>
+
+<script>
+  const form = document.getElementById("form");
+  form.addEventListener("submit", (e) => {
+    const formData = new FormData(form);
+    const xhr = new XMLHttpRequest();
+
+    formData.append("action", "login");
+
+    xhr.open("POST", "/", true);
+    xhr.setRequestHeader("Auth-Form", new URLSearchParams(formData).toString());
+    xhr.withCredentials = true;
+    xhr.onload = (e) => {
+      if (xhr.status == 300) {
+        window.location = window.location.href;
+      } else {
+        alert(xhr.response);
+      }
+    };
+
+    xhr.send(formData);
+    e.preventDefault();
+  }, false);
+</script>
