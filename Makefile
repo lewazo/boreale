@@ -11,8 +11,8 @@ help:
 build: ## Build the Docker image
 		docker build --build-arg APP_NAME=$(APP_NAME) \
 				--build-arg APP_VSN=$(APP_VSN) \
-				-t $(APP_NAME):$(APP_VSN)-$(BUILD) \
-				-t $(APP_NAME):latest .
+				-t lewazo/$(APP_NAME):$(APP_VSN)-$(BUILD) \
+				-t lewazo/$(APP_NAME):latest .
 
 release: ## Build the OTP releases
 		rm -rf _build && \

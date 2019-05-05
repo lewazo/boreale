@@ -63,7 +63,7 @@ docker run \
   --env-file <path to .env> \
   -p 5252:4000 \
   -v <path to data>:/opt/app/data \
-  boreale
+  lewazo/boreale
 ```
 ### Environment variables
 These are the environment variables that should be set in your `.env` file or set in your environment.
