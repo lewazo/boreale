@@ -34,9 +34,9 @@ Boréale is written in Elixir and compiled using Distillery. This allows for sel
 
 As such, you can simply download the release from [GitHub releases](https://github.com/lewazo/boreale/releases) and directly run it.
 
-To start it, simply run `./boreale foreground`
+To start it, simply run `./bin/boreale foreground`
 
-To start it in a background processs, simply run `./boreale start`
+To start it in a background processs, simply run `./bin/boreale start`
 
 **Note:** Make sure all required environment variables are set before launching the app. You can see a list of [all the variables here](#environment-variables). How the env variables are set is entirely up to you.
 
