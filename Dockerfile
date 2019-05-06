@@ -3,12 +3,10 @@
 ARG ALPINE_VERSION=3.9
 FROM elixir:1.8.1-alpine AS builder
 
-ARG APP_NAME
-ARG APP_VSN
+ARG APP_VSN=latest
 ARG MIX_ENV=prod
 
-ENV APP_NAME=${APP_NAME} \
-    APP_VSN=${APP_VSN} \
+ENV APP_VSN=${APP_VSN} \
     MIX_ENV=${MIX_ENV}
 
 WORKDIR /opt/app
@@ -28,14 +26,12 @@ RUN mix do deps.get, deps.compile, compile
 RUN \
   mkdir -p /opt/built && \
   mix release --verbose && \
-  cp _build/${MIX_ENV}/rel/${APP_NAME}/releases/${APP_VSN}/${APP_NAME}.tar.gz /opt/built && \
+  cp _build/${MIX_ENV}/rel/boreale/releases/${APP_VSN}/boreale.tar.gz /opt/built && \
   cd /opt/built && \
-  tar -xzf ${APP_NAME}.tar.gz && \
-  rm ${APP_NAME}.tar.gz
+  tar -xzf boreale.tar.gz && \
+  rm boreale.tar.gz
 
 FROM alpine:${ALPINE_VERSION}
-
-ARG APP_NAME
 
 RUN apk update && \
     apk add --no-cache \
@@ -43,10 +39,8 @@ RUN apk update && \
       openssl \
       openssl-dev
 
-ENV APP_NAME=${APP_NAME}
-
 WORKDIR /opt/app
 
 COPY --from=builder /opt/built .
 
-CMD trap 'exit' INT; /opt/app/bin/${APP_NAME} foreground
+CMD trap 'exit' INT; /opt/app/bin/boreale foreground
