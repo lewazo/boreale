@@ -80,7 +80,7 @@ These are the environment variables that should be set in your `.env` file or se
 Most of the Boréale configuration is done through its CLI. To use the CLI, follow the instructions below depending on your environement.
 
 #### OTP Release
-When using the OTP release, simply run `./boreale cli` to access the CLI.
+When using the OTP release, simply run `./bin/boreale cli` to access the CLI.
 
 #### docker-compose
 When using docker-compose, simply run `docker-compose exec boreale bin/boreale cli` in the same directory as your `.env` and `docker-compose.yml` file.
