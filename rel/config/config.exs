@@ -1,6 +1,7 @@
 use Mix.Config
 
 config :boreale, Boreale,
+  port: System.get_env("PORT"),
   page_title: System.get_env("PAGE_TITLE")
 
 config :boreale, Boreale.Router,

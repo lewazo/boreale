@@ -1,5 +1,6 @@
 _build/
 _build_vms/
+data/
 deps/
 .git/
 .gitignore

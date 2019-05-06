@@ -24,7 +24,7 @@ There exists many services similar to Boréale, but they either rely on external
 The main goal of Boréale is to have a tiny self-contained solution that is more appropriate for a home server usage.
 
 ### Alternatives
-* [Authelia](https://github.com/clems4ever/authelia) If you are looking of a complete solution for organizations.
+* [Authelia](https://github.com/clems4ever/authelia) If you are looking for a complete solution for organizations.
 
 * [Traefik Forward Auth](https://github.com/thomseddon/traefik-forward-auth) If you are looking for a Google OAuth-based authentication.
 
@@ -68,13 +68,14 @@ docker run \
 ### Environment variables
 These are the environment variables that should be set in your `.env` file or set in your environment.
 
-| Variable          | Description                              |
-|-------------------|------------------------------------------|
-| SECRET_KEY_BASE   | A key used for encryption                |
-| COOKIE_NAME       | The name for the auth cookie             |
-| SIGNING_SALT      | A key used for signing the cookie        |
-| ENCRYPTION_SALT   | A key used for encrypting the cookie     |
-| PAGE_TITLE        | The title of the login page              |
+| Variable          | Description                                         |
+|-------------------|-----------------------------------------------------|
+| SECRET_KEY_BASE   | A key used for encryption                           |
+| COOKIE_NAME       | The name for the auth cookie                        |
+| SIGNING_SALT      | A key used for signing the cookie                   |
+| ENCRYPTION_SALT   | A key used for encrypting the cookie                |
+| PAGE_TITLE        | The title of the login page                         |
+| PORT              | Listening port (OTP release only, defaults to 4000) |
 
 ## Configuration
 Most of the Boréale configuration is done through its CLI. To use the CLI, follow the instructions below depending on your environement.

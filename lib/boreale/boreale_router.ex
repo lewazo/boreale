@@ -17,6 +17,7 @@ defmodule Boreale.Router do
 
   # When not behind the traefik reverse-proxy, we need a route for POST.
   # This is because traefik transforms our POST request to a GET request.
+  # This is used for testing purposes.
   post "/" do
     Boreale.LoginController.index(conn)
   end
