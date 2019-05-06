@@ -3,7 +3,7 @@
 ARG ALPINE_VERSION=3.9
 FROM elixir:1.8.1-alpine AS builder
 
-ARG APP_VSN=latest
+ARG APP_VSN
 ARG MIX_ENV=prod
 
 ENV APP_VSN=${APP_VSN} \
