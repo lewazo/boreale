@@ -9,8 +9,9 @@
 Boréale is a tiny and simple self-hosted service to handle forward authentication for services behind [Traefik reverse proxy](https://github.com/containous/traefik).
 
 ## Features
-* Very lightweight, less than 60mb.
+* Very lightweight, less than 60 MB.
 * User can use a custom login page.
+* SSO for all subdomains.
 * Has no external dependencies.
 * Easy management through the Boréale CLI.
 * Secure and encrypted cookie.
@@ -38,44 +39,36 @@ To start it, simply run `./bin/boreale foreground`
 
 To start it in a background processs, simply run `./bin/boreale start`
 
-**Note:** Make sure all required environment variables are set before launching the app. You can see a list of [all the variables here](#environment-variables). How the env variables are set is entirely up to you.
+**Note:** Make sure all required environment variables are set before launching the app. You can see a list of [all the variables here](#environment-variables). How the environment variables are set is entirely up to you.
 
 ### Docker
 While the OTP release is nice and very easy to use, it has the downside of needing to be compiled on an environment similar to the target environment. Currently, I only provide binaries compiled on Ubuntu 18.04 and MacOS Mojave.
 
-This is why the recommended method for deploying Boréale is through Docker. Docker still uses an OTP release, but the release is actually compiled in the image build process. This has the advantage of having the same environment for running and compiling the release. The overall size is still very small, currently sitting at 58mb.
+This is why the recommended method for deploying Boréale is through Docker. The provided Docker image still uses an OTP release internally, but the release is actually compiled in the image build process. This has the advantage of having the same environment for running and compiling the release. The overall size is still very small, currently sitting at 58 MB.
 
 #### docker-compose
 The easiest way to get started with the Docker release is using docker-compose. First, create a directory for the Boréale configurations to live in. It can be anywhere. Since I use an unRAID system, I put mine with my other docker applications in `/mnt/user/appdata`.
 
-So inside `/mnt/user/appdata/boreale`, place the `.env` and `docker-compose.yml` file from the [examples here](examples/).
+So inside `/mnt/user/appdata/boreale`, place the `.env` and `docker-compose.yml` files from the [examples here](examples/) and edit them accordingly. Avoid leaving empty variables inside the `.env`. Check [all the variables here](#environment-variables) to see which ones are required or optional.
 
 Create a `data` directory inside the previous directory for the docker volume. For me that would be `/mnt/user/appdata/boreale/data`. You can name it however you want as long as the correct name is set in the `docker-compose.yml` file.
 
 Run `docker-compose up` to launch Boréale.
 
 #### docker CLI
-Of course using docker-compose is optional. You can use any containers manager you wish. Here's an example on how to run it directly from the docker CLI.
+Of course using docker-compose is optional. You can use any containers manager you wish. Here's an example on how to run it directly from the docker CLI. Check the docker-compose section for more info on the `.env` file and `data/` directory.
 
 ```
 docker run \
   --name=boreale \
-  --env-file <path to .env> \
+  --env-file <path to .env file> \
   -p 5252:4000 \
-  -v <path to data>:/opt/app/data \
+  -v <path to data/ dir>:/opt/app/data \
   lewazo/boreale
 ```
-### Environment variables
-These are the environment variables that should be set in your `.env` file or set in your environment.
 
-| Variable          | Description                                         |
-|-------------------|-----------------------------------------------------|
-| SECRET_KEY_BASE   | A key used for encryption                           |
-| COOKIE_NAME       | The name for the auth cookie                        |
-| SIGNING_SALT      | A key used for signing the cookie                   |
-| ENCRYPTION_SALT   | A key used for encrypting the cookie                |
-| PAGE_TITLE        | The title of the login page                         |
-| PORT              | Listening port (OTP release only, defaults to 4000) |
+#### unRAID
+While Boréale isn't available on the Community Applications plugin, you can still install it and use it the same way as any other Docker containers installed with CA by using [my template](https://github.com/lewazo/unraid-docker-templates).
 
 ## Configuration
 Most of the Boréale configuration is done through its CLI. To use the CLI, follow the instructions below depending on your environement.
@@ -84,10 +77,10 @@ Most of the Boréale configuration is done through its CLI. To use the CLI, foll
 When using the OTP release, simply run `./bin/boreale cli` to access the CLI.
 
 #### docker-compose
-When using docker-compose, simply run `docker-compose exec boreale bin/boreale cli` in the same directory as your `.env` and `docker-compose.yml` file.
+When using docker-compose, simply run `docker-compose exec boreale bin/boreale cli` in the same directory as your `docker-compose.yml` file.
 
 #### Docker CLI
-When using the Docker CLI, you first need to get the container's ID. Run `docker ps` and find the container that has the `boreale:latest` image. Then, run `docker exec -it <CONTAINER ID> bin/boreale cli`.
+When using the Docker CLI, you first need to get the container's ID. Run `docker ps` and find the container that has the `lewazo/boreale` image. Then, run `docker exec -it <CONTAINER ID> bin/boreale cli`.
 
 ### Traefik
 In order for Traefik to forward the authentication to Boréale, there are some configurations that needs to be done.
@@ -104,6 +97,13 @@ Edit `127.0.0.1` for the IP of the host that runs Boréale. Match the port with 
 
 We use `insecureSkiVerify = true` so Traefik can trust our self-signed certificate. More info on that [here](#tls).
 
+### SSO
+SSO (Single sign-on) can be achieved using the `domain` cookie attribute. If your services are setup by subdomains like `service1.domain.tld`, `service2.domain.tld`, then you can use the SSO feature. If you use completely different domains like `service1-domain.tld` and `service2-domain.tld` then this won't work because of the `same origin` policy.
+
+To enable SSO, set the `SSO_DOMAIN_NAME` environment variable to your root domain, e.g., `domain.tld`. This will make all `*.domain.tld` **and** `domain.tld` requests share the same cookie. So a user only has to login to one service. The user will then be authentified on every other services.
+
+Not setting the variable will disable SSO.
+
 ### Authorized users
 An authorized user is a user who's allowed to log in and access all the web services behind Traefik.
 
@@ -114,13 +114,26 @@ To add a new user, use the CLI's `users add` command.
 To delete a user, use the CLI's `users remove` command.
 
 ### Public domains
-A public domain is a FQDN that is meant to access a public server. ie. it shouldn't ask for any authentication when visiting this domain.
+A public domain is a FQDN that is meant to access a public server, i.e., it shouldn't ask for any authentication when visiting that domain.
 
 To list all public domains, use the CLI's `domains` command.
 
 To add a new public domain, use the CLI's `domains add` command.
 
 To delete a public domain, use the CLI's `domains remove` command.
+
+### Environment variables
+These are the environment variables that should be set in your `.env` file or set in your environment.
+
+| Variable          | Description                                            | Default                | Optional? |
+|-------------------|--------------------------------------------------------|------------------------|-----------|
+| COOKIE_NAME       | The name for the authentication cookie                 | _boreale_auth          | Optional  |
+| ENCRYPTION_SALT   | The key used for encrypting the cookie                 | *none*                 | Required  |
+| PAGE_TITLE        | The title of the login page                            | Boréale Authentication | Optional  |
+| PORT              | The listening HTTPS port (OTP release only)            | 4000                   | Optional  |
+| SECRET_KEY_BASE   | The key used for encryption (Must be 64 bytes long)    | *none*                 | Required  |
+| SIGNING_SALT      | The key used for signing the cookie                    | *none*                 | Required  |
+| SSO_DOMAIN_NAME   | The root domain name. Check [here for more info](#sso) | *none*                 | Optional  |
 
 ## Customization
 Boréale ships with a default login form, but using your own is very easy.
@@ -132,7 +145,7 @@ The following screenshot shows the default login form.
 
 ## Security
 ### TLS
-Boréale is meant to be accessed directly by forwarding the auth. As such, you **should not** add it as a backend in Traefik. ie. You should not have a `boreale.yourdomain.tld` or anything.
+Boréale is meant to be accessed directly by forwarding the auth. As such, you **should not** add it as a backend in Traefik, i.e., you should not have a `boreale.yourdomain.tld` or anything.
 
 With this premise in mind, Boréale automatically creates a self-signed certificate in order to provide a complete HTTPS connection between Traefik and Boréale. This allows the server to set a `secure` cookie on the browser.
 

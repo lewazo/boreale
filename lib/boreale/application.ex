@@ -9,7 +9,7 @@ defmodule Boreale.Application do
         scheme: :https,
         plug: Boreale.Router,
         options: [
-          port: String.to_integer(Application.get_env(:boreale, Boreale)[:port] || "4000"),
+          port: Application.get_env(:boreale, Boreale)[:port],
           keyfile: File.cwd! |> Path.join("data/key.pem"),
           certfile: File.cwd! |> Path.join("data/cert.pem")
         ]

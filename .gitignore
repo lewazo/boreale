@@ -25,3 +25,4 @@ boreale-*.tar
 .vagrant/
 *.log
 /data/
+.env

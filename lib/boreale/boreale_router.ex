@@ -34,6 +34,7 @@ defmodule Boreale.Router do
     opts =
       Plug.Session.init(
         store: :cookie,
+        domain: Application.get_env(:boreale, Boreale.Router)[:sso_domain_name],
         key: Application.get_env(:boreale, Boreale.Router)[:cookie_name],
         signing_salt: Application.get_env(:boreale, Boreale.Router)[:signing_salt],
         encryption_salt: Application.get_env(:boreale, Boreale.Router)[:encryption_salt],
