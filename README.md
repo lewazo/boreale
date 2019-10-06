@@ -85,6 +85,11 @@ When using the Docker CLI, you first need to get the container's ID. Run `docker
 ### Traefik
 In order for Traefik to forward the authentication to Boréale, there are some configurations that needs to be done.
 
+In the following snippets, edit `127.0.0.1` for the IP of the host that runs Boréale. Match the port with the one defined in your `docker-compose.yml` or equivalent.
+
+We use `insecureSkipVerify = true` so Traefik can trust our self-signed certificate. More info on that [here](#tls).
+
+#### For Traefik version below 2.0
 In your `traefik.toml`, add the following lines under `[entryPoints.https.tls]`.
 ```
 [entryPoints.https.auth.forward]
@@ -93,9 +98,22 @@ In your `traefik.toml`, add the following lines under `[entryPoints.https.tls]`.
       insecureSkipVerify = true
 ```
 
-Edit `127.0.0.1` for the IP of the host that runs Boréale. Match the port with the one defined in your `docker-compose.yml` or equivalent.
+#### For Traefik version 2.0 and above
+In your dynamic configuration file, define a middleware for Boréale like the following :
 
-We use `insecureSkiVerify = true` so Traefik can trust our self-signed certificate. More info on that [here](#tls).
+**Note :** Traefik v2.0 now allows the use of the YAML file format. The following configuration uses the YAML format because in my opinion it is easier than TOML to use. You can still use TOML if you wish.
+
+```
+http:
+  middlewares:
+    boreale:
+      forwardAuth:
+        address: "https://127.0.0.1:5252"
+        tls:
+          insecureSkipVerify: true
+```
+
+Then add the middleware to all the routers you wish to guard with Boréale. If you use a configuration with labels, then simply add this label to your routers `"traefik.http.routers.<router name>.middlewares=boreale@file"`.
 
 ### SSO
 SSO (Single sign-on) can be achieved using the `domain` cookie attribute. If your services are setup by subdomains like `service1.domain.tld`, `service2.domain.tld`, then you can use the SSO feature. If you use completely different domains like `service1-domain.tld` and `service2-domain.tld` then this won't work because of the `same origin` policy.
@@ -114,7 +132,9 @@ To add a new user, use the CLI's `users add` command.
 To delete a user, use the CLI's `users remove` command.
 
 ### Public domains
-A public domain is a FQDN that is meant to access a public server, i.e., it shouldn't ask for any authentication when visiting that domain.
+**Note:** Starting with Traefik v2.0, adding public domains isn't necessary anymore because we can choose which routers forwards the auth to Boréale by adding or not the middleware to routers. For Traefik v1.x, this isn't possible because the configuration is global; all requests are forwarded to Boréale. Public domains are the only way to have a 'whitelist' for those versions.
+
+A public domain is a FQDN that is meant to access a public server, i.e., it shouldn't ask the user to authenticate when visiting this domain. This acts as a kind of whitelist for your domains.
 
 To list all public domains, use the CLI's `domains` command.
 
