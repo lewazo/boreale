@@ -16,7 +16,8 @@ defmodule Boreale.Application do
           certfile: SSL.cert_file()
         ]
       ),
-      Boreale.Domains
+      Boreale.Domains,
+      Boreale.Users
     ]
 
     opts = [strategy: :one_for_one, name: Boreale.Supervisor]

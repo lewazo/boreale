@@ -7,6 +7,12 @@ defmodule Boreale.Users do
   defmodule State do
     defstruct file: nil, users: []
 
+    def valid?(%State{users: []}), do: false
+
+    def valid?(%State{}, username, password)
+        when is_nil(username) or is_nil(password),
+        do: false
+
     def valid?(%State{users: users}, username, password) do
       case Map.get(users, username) do
         nil ->
@@ -18,7 +24,7 @@ defmodule Boreale.Users do
     end
 
     defp validate_password(password, password_hash) do
-      Bcrypt.check_pass(password, password_hash)
+      Bcrypt.verify_pass(password, password_hash)
     end
 
     def new(file), do: %State{file: file}
