@@ -30,9 +30,11 @@ defmodule Mix.Tasks.Cli do
     case cmd do
       "add" ->
         Cli.UsersAdd.run(args)
+        Boreale.Users.sync()
 
       "remove" ->
         Cli.UsersRemove.run(args)
+        Boreale.Users.sync()
 
       "--help" ->
         Cli.Utils.print_help_for("users")

@@ -8,7 +8,7 @@ defmodule Boreale.UsersTest do
     :ok
   end
 
-  @valid_user "valid@user.com"
+  @valid_user "valid_user"
   @password "password"
   @valid_users [
     [@valid_user, @password, DateTime.utc_now()]
@@ -33,7 +33,7 @@ defmodule Boreale.UsersTest do
         Users.sync()
         assert Users.valid?(@valid_user, @password)
         refute Users.valid?(@valid_user, "bad_password")
-        refute Users.valid?("invalid@user.com", @password)
+        refute Users.valid?("invalid_user", @password)
       end
     end
 
@@ -42,7 +42,7 @@ defmodule Boreale.UsersTest do
         Users.sync()
         refute Users.valid?(@valid_user, @password)
         refute Users.valid?(@valid_user, "bad_password")
-        refute Users.valid?("invalid@user.com", @password)
+        refute Users.valid?("invalid_user", @password)
       end
     end
   end
