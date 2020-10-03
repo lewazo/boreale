@@ -1,6 +1,7 @@
 defmodule Boreale.Domains do
   use GenServer
 
+  alias Boreale.Storage
   require Logger
 
   defmodule State do
@@ -13,7 +14,7 @@ defmodule Boreale.Domains do
 
   @fallback_file "data/domains.dets"
   def start_link(opts) do
-    file = Keyword.get(opts, :file, @fallback_file)
+    file = Keyword.get(opts, :file, Path.join(File.cwd!(), @fallback_file))
 
     GenServer.start(__MODULE__, %{file: file}, name: __MODULE__)
   end
@@ -27,7 +28,7 @@ defmodule Boreale.Domains do
   end
 
   def init(%{file: file}) do
-    send(self(), :sync)
+    sync()
     log(:info, "Starting domains server ")
     {:ok, State.new(file)}
   end
@@ -36,36 +37,18 @@ defmodule Boreale.Domains do
     {:reply, State.public?(state, domain), state}
   end
 
-  def handle_cast(:sync, state) do
+  def handle_cast(:sync, %State{file: file} = state) do
     domains = read_from_dets(state)
+    log(:info, "Read #{length(domains)} from dets #{file}")
 
     {:noreply, %State{state | domains: domains}}
   end
 
   defp read_from_dets(%State{file: file}) do
-    {:ok, table} =
-      file
-      |> String.to_atom()
-      |> :dets.open_file(type: :set)
-
-    :dets.match(table, {:"$1", :"$2"}) |> List.flatten()
+    file
+    |> Storage.read_dets({:"$1", :"$2"})
+    |> Enum.reduce([], fn [domain | _], acc -> [domain | acc] end)
   end
 
-  # defp all do
-  #   {:ok, table} =
-  #     File.cwd!()
-  #     |> Path.join(@domains_file)
-  #     |> String.to_atom()
-  #     |> :dets.open_file(type: :set)
-
-  #   :dets.match(table, {:"$1", :"$2"}) |> List.flatten()
-  # end
-
-  # def public?(domain) do
-  #   Enum.any?(all(), fn public_domain -> domain == public_domain end)
-  # end
-
-  def log(type, message) do
-    apply(Logger, type, ["[#{inspect(__MODULE__)}] #{message}"])
-  end
+  defp log(:info, message), do: Logger.info("[#{inspect(__MODULE__)}] #{message}")
 end

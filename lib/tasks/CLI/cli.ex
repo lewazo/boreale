@@ -51,9 +51,11 @@ defmodule Mix.Tasks.Cli do
     case cmd do
       "add" ->
         Cli.DomainsAdd.run(args)
+        Boreale.Domains.sync()
 
       "remove" ->
         Cli.DomainsRemove.run(args)
+        Boreale.Domains.sync()
 
       "--help" ->
         Cli.Utils.print_help_for("domains")
