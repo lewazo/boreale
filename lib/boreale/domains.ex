@@ -46,7 +46,6 @@ defmodule Boreale.Domains do
 
   defp read_from_dets(%State{file: file}) do
     file
-    |> IO.inspect()
     |> Storage.read_dets({:"$1", :"$2"})
     |> Enum.reduce([], fn [domain | _], acc -> [domain | acc] end)
   end
