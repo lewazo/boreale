@@ -3,11 +3,9 @@ defmodule Boreale.DomainsTest do
 
   alias Boreale.{Domains, Storage}
 
-  describe "start_link/1" do
-    setup do
-      _ = Domains.start_link([])
-      :ok
-    end
+  setup do
+    _ = Domains.start_link([])
+    :ok
   end
 
   @domain "public.com"
