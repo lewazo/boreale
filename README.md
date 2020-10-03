@@ -82,6 +82,9 @@ When using docker-compose, simply run `docker-compose exec boreale bin/boreale c
 #### Docker CLI
 When using the Docker CLI, you first need to get the container's ID. Run `docker ps` and find the container that has the `lewazo/boreale` image. Then, run `docker exec -it <CONTAINER ID> bin/boreale cli`.
 
+#### Development
+When working in development, you can use the cli using `mix` like `mix cli ...`
+
 ### Traefik
 In order for Traefik to forward the authentication to Boréale, there are some configurations that needs to be done.
 
@@ -173,6 +176,12 @@ Since Boréale is only accessed through Traefik's authentication, using a self-s
 
 ### HSTS
 To protect your services from cookie hijacking and protocol downgrade attacks, you should have HSTS enabled. Since Traefik is the one that's terminating the connection, HSTS should be enabled on it rather than on Boréale.
+
+## Starting dev environment
+
+To start working with the repository, there is no configuration required (unless you want to). You only need to run make target `make dev` to have your local Boreale env working locally on port 4000.
+
+**Note**: The server only listen on https, certificate and key are generated automatically so make sure to access the endpoint under https scheme (`https://localhost:4000`).
 
 ## License
 The source code and binaries of Boréale is subject to the [MIT License]().

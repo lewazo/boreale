@@ -1,37 +1,45 @@
-defmodule Mix.Tasks.CLI.UsersAdd do
+defmodule Mix.Tasks.Cli.UsersAdd do
+  alias Mix.Tasks.Cli
+
   def run(args) do
-    args = Mix.Tasks.CLI.Utils.args_to_map(args)
+    args = Cli.Utils.args_to_map(args)
 
     case args do
-      %{"--help" => _} -> Mix.Tasks.CLI.Utils.print_help_for("users add")
-      x when x == %{} -> add_user()
-      _ -> IO.puts "boreale cli: users add command does not take any arguments"
-           IO.puts "See 'boreale cli users add --help'"
+      %{"--help" => _} ->
+        Cli.Utils.print_help_for("users add")
+
+      x when x == %{} ->
+        add_user()
+
+      _ ->
+        IO.puts("boreale cli: users add command does not take any arguments")
+        IO.puts("See 'boreale cli users add --help'")
     end
   end
 
   defp add_user do
-    username = IO.gets("username: ") |> String.trim
-    password = password_prompt("password:") |> String.trim
+    username = IO.gets("username: ") |> String.trim()
+    password = password_prompt("password:") |> String.trim()
 
-    if (String.length(username) >= 3 and String.length(password) >= 6) do
+    if String.length(username) >= 3 and String.length(password) >= 6 do
       case insert_user({username, password}) do
-       {:ok} -> IO.puts "User #{username} has been added."
-       {:error, msg} -> IO.puts msg
+        {:ok} -> IO.puts("User #{username} has been added.")
+        {:error, msg} -> IO.puts(msg)
       end
     else
-      IO.puts "Username have to be at least three characters long."
-      IO.puts "Password have to be at least six characters long."
+      IO.puts("Username have to be at least three characters long.")
+      IO.puts("Password have to be at least six characters long.")
     end
   end
 
   defp insert_user({u, p}) do
     date_time = DateTime.utc_now()
+
     {:ok, table} =
-      File.cwd!
+      File.cwd!()
       |> Path.join("data/users.dets")
       |> String.to_atom()
-      |> :dets.open_file([type: :set])
+      |> :dets.open_file(type: :set)
 
     created? = :dets.insert_new(table, {u, Bcrypt.hash_pwd_salt(p), date_time})
     :dets.close(table)
@@ -39,7 +47,7 @@ defmodule Mix.Tasks.CLI.UsersAdd do
     if created?, do: {:ok}, else: {:error, "The user #{u} already exists."}
   end
 
-   # Password prompt that hides input by every 1ms
+  # Password prompt that hides input by every 1ms
   # clearing the line with stderr
   #
   # taken from the hex repository

@@ -19,3 +19,7 @@ release: ## Build the OTP releases
 		cd build_vms/ubuntu && \
 		vagrant up && \
 		vagrant halt
+
+.PHONY: dev
+dev:
+	iex -S mix
