@@ -12,9 +12,9 @@ defmodule Boreale.Domains do
     def new(file), do: %State{file: file}
   end
 
-  @fallback_file "data/domains.dets"
-  def start_link(opts) do
-    file = Keyword.get(opts, :file, Path.join(File.cwd!(), @fallback_file))
+  @dets_file "data/domains.dets"
+  def start_link(_opts \\ []) do
+    file = Path.join(File.cwd!(), @dets_file)
 
     GenServer.start(__MODULE__, %{file: file}, name: __MODULE__)
   end
@@ -46,6 +46,7 @@ defmodule Boreale.Domains do
 
   defp read_from_dets(%State{file: file}) do
     file
+    |> IO.inspect()
     |> Storage.read_dets({:"$1", :"$2"})
     |> Enum.reduce([], fn [domain | _], acc -> [domain | acc] end)
   end
