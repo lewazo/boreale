@@ -1,11 +1,12 @@
 defmodule Boreale.LoginController do
   import Plug.Conn
 
+  alias Boreale.{Domains, Users}
+
   def index(conn) do
     with {:index} <- action?(conn),
          {:private_domain} <- is_domain_public(conn),
-         {:not_logged_in} <- is_logged_in(conn)
-    do
+         {:not_logged_in} <- is_logged_in(conn) do
       body = EEx.eval_file(Application.app_dir(:boreale, "priv/login.html.eex"))
       send_resp(conn, 401, body)
     else
@@ -16,8 +17,7 @@ defmodule Boreale.LoginController do
 
   defp login(conn) do
     with {:ok, username, password} <- get_params(conn),
-         {:ok} <- validate_credentials(username, password)
-    do
+         :ok <- validate_credentials(username, password) do
       conn
       |> fetch_session
       |> put_session("username", username)
@@ -31,7 +31,9 @@ defmodule Boreale.LoginController do
     headers = Enum.into(conn.req_headers, %{})
 
     case headers["auth-form"] do
-      nil -> {:index}
+      nil ->
+        {:index}
+
       authform ->
         %{"action" => "login"} = URI.decode_query(authform)
         {:login}
@@ -42,7 +44,9 @@ defmodule Boreale.LoginController do
     headers = Enum.into(conn.req_headers, %{})
 
     case headers["auth-form"] do
-      nil -> {:error}
+      nil ->
+        {:error}
+
       authform ->
         %{"username" => username, "password" => password} = URI.decode_query(authform)
         {:ok, username, password}
@@ -50,22 +54,7 @@ defmodule Boreale.LoginController do
   end
 
   defp validate_credentials(username, password) do
-    {:ok, table} =
-      File.cwd!
-      |> Path.join("data/users.dets")
-      |> String.to_atom()
-      |> :dets.open_file([type: :set])
-
-    users =
-      :dets.match(table, {:"$1", :"$2", :"$3"})
-      |> Enum.map(fn x -> List.to_tuple(x) end)
-      |> Enum.map(fn {u, pw, _} -> {u, pw} end)
-      |> Enum.into(%{})
-
-    with password_hash when not is_nil(password_hash) <- users[username],
-         true <- Bcrypt.verify_pass(password, password_hash),
-      do: {:ok},
-      else: (_ -> {:error})
+    if Users.valid?(username, password), do: :ok, else: :error
   end
 
   defp is_logged_in(conn) do
@@ -76,16 +65,9 @@ defmodule Boreale.LoginController do
   end
 
   defp is_domain_public(conn) do
-    {:ok, table} =
-      File.cwd!
-      |> Path.join("data/domains.dets")
-      |> String.to_atom()
-      |> :dets.open_file([type: :set])
-
-    public_domains = :dets.match(table, {:"$1", :"$2"}) |> List.flatten
     headers = Enum.into(conn.req_headers, %{})
 
-    if Enum.any?(public_domains, fn domain -> domain == headers["x-forwarded-host"] end),
+    if Domains.public?(headers["x-forwarded-host"]),
       do: {:public_domain},
       else: {:private_domain}
   end

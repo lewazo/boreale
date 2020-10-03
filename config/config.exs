@@ -30,5 +30,5 @@ use Mix.Config
 #     import_config "#{Mix.env()}.exs"
 
 if Mix.env() != :prod do
-  import_config("dev.exs")
+  import_config("#{Mix.env()}.exs")
 end
