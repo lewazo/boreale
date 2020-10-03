@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.CLI.Utils do
+defmodule Mix.Tasks.Cli.Utils do
   def args_to_map(args) do
     args
     |> Enum.map(fn x ->
@@ -22,24 +22,24 @@ defmodule Mix.Tasks.CLI.Utils do
   }
 
   def print_help_for(cmd) do
-    IO.puts "Usage: boreale cli #{cmd} #{@commands_help[cmd].optionals}"
-    IO.puts ""
-    IO.puts "#{@commands_help[cmd].body}"
+    IO.puts("Usage: boreale cli #{cmd} #{@commands_help[cmd].optionals}")
+    IO.puts("")
+    IO.puts("#{@commands_help[cmd].body}")
   end
 
   def print_general_help do
-    IO.puts "Usage:    boreale cli COMMAND"
-    IO.puts ""
-    IO.puts "A CLI for managing boreale"
-    IO.puts ""
-    IO.puts "Commands:"
-    IO.puts "  domains           #{@commands_help["domains"].body}"
-    IO.puts "  domains add       #{@commands_help["domains add"].body}"
-    IO.puts "  domains remove    #{@commands_help["domains remove"].body}"
-    IO.puts "  users             #{@commands_help["users"].body}"
-    IO.puts "  users add         #{@commands_help["users add"].body}"
-    IO.puts "  users remove      #{@commands_help["users remove"].body}"
-    IO.puts ""
-    IO.puts "Run 'boreale cli COMMAND --help' for more information on a command."
+    IO.puts("Usage:    boreale cli COMMAND")
+    IO.puts("")
+    IO.puts("A CLI for managing boreale")
+    IO.puts("")
+    IO.puts("Commands:")
+    IO.puts("  domains           #{@commands_help["domains"].body}")
+    IO.puts("  domains add       #{@commands_help["domains add"].body}")
+    IO.puts("  domains remove    #{@commands_help["domains remove"].body}")
+    IO.puts("  users             #{@commands_help["users"].body}")
+    IO.puts("  users add         #{@commands_help["users add"].body}")
+    IO.puts("  users remove      #{@commands_help["users remove"].body}")
+    IO.puts("")
+    IO.puts("Run 'boreale cli COMMAND --help' for more information on a command.")
   end
 end

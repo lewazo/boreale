@@ -1,36 +1,42 @@
-defmodule Mix.Tasks.CLI.UsersRemove do
+defmodule Mix.Tasks.Cli.UsersRemove do
+  alias Mix.Tasks.Cli
+
   def run(args) do
-    args = Mix.Tasks.CLI.Utils.args_to_map(args)
+    args = Cli.Utils.args_to_map(args)
 
     case args do
-      %{"--help" => _} -> Mix.Tasks.CLI.Utils.print_help_for("users remove")
-      x when x == %{} -> remove_user()
-      _ -> IO.puts "boreale cli: users remove command does not take any arguments"
-           IO.puts "See 'boreale cli users remove --help'"
+      %{"--help" => _} ->
+        Cli.Utils.print_help_for("users remove")
+
+      x when x == %{} ->
+        remove_user()
+
+      _ ->
+        IO.puts("boreale cli: users remove command does not take any arguments")
+        IO.puts("See 'boreale cli users remove --help'")
     end
   end
 
   defp remove_user do
-    users = Mix.Tasks.CLI.Users.run()
+    users = Cli.Users.run()
 
     with {:users_not_empty} <- is_users_empty?(users),
-         {:ok, username} <- get_user(users)
-    do
+         {:ok, username} <- get_user(users) do
       {:ok, table} =
-        File.cwd!
+        File.cwd!()
         |> Path.join("data/users.dets")
         |> String.to_atom()
-        |> :dets.open_file([type: :set])
+        |> :dets.open_file(type: :set)
 
       deleted? = :dets.delete(table, username)
       :dets.close(table)
 
       case deleted? do
-        :ok -> IO.puts "User #{username} has been removed."
-          _ -> IO.puts "Error : User #{username} hasn't been removed."
+        :ok -> IO.puts("User #{username} has been removed.")
+        _ -> IO.puts("Error : User #{username} hasn't been removed.")
       end
     else
-      {:no_user_with_id} -> IO.puts ("Error: There is no authorized user with this ID.")
+      {:no_user_with_id} -> IO.puts("Error: There is no authorized user with this ID.")
       {:users_empty} -> nil
     end
   end
@@ -39,9 +45,11 @@ defmodule Mix.Tasks.CLI.UsersRemove do
     users =
       Stream.map(users, fn {id, name, _} -> {id, name} end)
       |> Enum.into(%{})
+
     IO.puts("")
-    id = IO.gets("Enter the ID of the user you wish to remove: ") |> String.trim
-    if (users[id]),
+    id = IO.gets("Enter the ID of the user you wish to remove: ") |> String.trim()
+
+    if users[id],
       do: {:ok, users[id]},
       else: {:no_user_with_id}
   end
