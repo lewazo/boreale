@@ -1,38 +1,22 @@
-defmodule Boreale.DomainsTest do
+defmodule Boreale.UsersTest do
   use Boreale.TestCase
 
-  alias Boreale.{Domains, Storage}
+  alias Boreale.{Users, Storage}
 
-  describe "start_link/1" do
-    setup do
-      _ = Domains.start_link([])
-      :ok
-    end
-  end
-
-  @domain "public.com"
-  describe "public?/1" do
-    test "only public domains are public" do
-      with_mock(Storage, read_dets: fn _, _ -> [[@domain, DateTime.utc_now()]] end) do
-        Domains.sync()
-        assert Domains.public?(@domain)
-        refute Domains.public?("another.domain.com")
-      end
-    end
+  setup do
+    _ = Users.start_link([])
+    :ok
   end
 
   describe "sync/0" do
-    test "updates itself on sync" do
-      with_mock(Storage, read_dets: fn _, _ -> [] end) do
-        Domains.sync()
-        refute Domains.public?(@domain)
-      end
+    test "syncs with latest changes" do
+      assert false
+    end
+  end
 
-      with_mock(Storage, read_dets: fn _, _ -> [[@domain, DateTime.utc_now()]] end) do
-        Domains.sync()
-        assert Domains.public?(@domain)
-        refute Domains.public?("another.domain.com")
-      end
+  describe "valid?/2" do
+    test "validate users" do
+      assert false
     end
   end
 end
