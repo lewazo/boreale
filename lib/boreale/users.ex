@@ -47,7 +47,7 @@ defmodule Boreale.Users do
 
   def init(%{file: file}) do
     sync()
-    log(:info, "Starting users server ")
+    log(:info, "Starting users server")
     {:ok, State.new(file)}
   end
 
@@ -57,7 +57,7 @@ defmodule Boreale.Users do
 
   def handle_cast(:sync, %State{file: file} = state) do
     users = read_from_dets(state)
-    log(:info, "Read #{length(Map.keys(users))} from dets #{file}")
+    log(:info, "Read #{length(Map.keys(users))} users from dets #{file}")
 
     {:noreply, %State{state | users: users}}
   end

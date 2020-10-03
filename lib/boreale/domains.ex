@@ -29,7 +29,7 @@ defmodule Boreale.Domains do
 
   def init(%{file: file}) do
     sync()
-    log(:info, "Starting domains server ")
+    log(:info, "Starting domains server")
     {:ok, State.new(file)}
   end
 
@@ -39,7 +39,7 @@ defmodule Boreale.Domains do
 
   def handle_cast(:sync, %State{file: file} = state) do
     domains = read_from_dets(state)
-    log(:info, "Read #{length(domains)} from dets #{file}")
+    log(:info, "Read #{length(domains)} domains from dets #{file}")
 
     {:noreply, %State{state | domains: domains}}
   end
