@@ -5,6 +5,8 @@ defmodule Boreale.Storage do
       |> String.to_atom()
       |> :dets.open_file(type: :set)
 
-    :dets.match(table, match)
+    results = :dets.match(table, match)
+    :dets.close(table)
+    results
   end
 end
