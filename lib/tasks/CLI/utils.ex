@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Cli.Utils do
+defmodule Boreale.Tasks.Cli.Utils do
   def args_to_map(args) do
     args
     |> Enum.map(fn x ->

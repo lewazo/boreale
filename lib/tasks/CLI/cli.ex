@@ -1,6 +1,7 @@
-defmodule Mix.Tasks.Cli do
+defmodule Boreale.Tasks.Cli do
   alias __MODULE__
 
+  @moduledoc "Provides a CLI for basic configuration of Boreale"
   def run([]) do
     Cli.Utils.print_general_help()
   end
@@ -22,7 +23,7 @@ defmodule Mix.Tasks.Cli do
     end
   end
 
-  defp users([]) do
+  defp users([""]) do
     Cli.Users.run()
   end
 
@@ -30,11 +31,9 @@ defmodule Mix.Tasks.Cli do
     case cmd do
       "add" ->
         Cli.UsersAdd.run(args)
-        Boreale.Users.sync()
 
       "remove" ->
         Cli.UsersRemove.run(args)
-        Boreale.Users.sync()
 
       "--help" ->
         Cli.Utils.print_help_for("users")
@@ -45,7 +44,7 @@ defmodule Mix.Tasks.Cli do
     end
   end
 
-  defp domains([]) do
+  defp domains([""]) do
     Cli.Domains.run()
   end
 
@@ -53,11 +52,9 @@ defmodule Mix.Tasks.Cli do
     case cmd do
       "add" ->
         Cli.DomainsAdd.run(args)
-        Boreale.Domains.sync()
 
       "remove" ->
         Cli.DomainsRemove.run(args)
-        Boreale.Domains.sync()
 
       "--help" ->
         Cli.Utils.print_help_for("domains")

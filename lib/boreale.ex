@@ -1,0 +1,2 @@
+defmodule Boreale do
+end

@@ -1,46 +1,69 @@
-# The version of Alpine to use for the final image
-# This should match the version of Alpine that the `elixir:1.8.1-alpine` image uses
-ARG ALPINE_VERSION=3.9
-FROM elixir:1.8.1-alpine AS builder
+#
+# Step 1 - build the OTP binary
+#
+FROM hexpm/elixir:1.13.3-erlang-24.2.2-alpine-3.15.0 AS otp-builder
 
-ARG APP_VSN
-ARG MIX_ENV=prod
+ENV MIX_ENV=prod
 
-ENV APP_VSN=${APP_VSN} \
-    MIX_ENV=${MIX_ENV}
+WORKDIR /build
 
-WORKDIR /opt/app
-
-RUN apk update && \
+# Install Alpine dependencies
+RUN apk update --no-cache && \
   apk upgrade --no-cache && \
-  apk add --no-cache \
-    git \
-    build-base && \
-  mix local.rebar --force && \
+  apk add --no-cache git build-base
+
+# Install Erlang dependencies
+RUN mix local.rebar --force && \
   mix local.hex --force
 
-COPY . .
+# Install dependencies
+COPY mix.* ./
+RUN mix deps.get --only prod && \
+  mix deps.compile
 
-RUN mix do deps.get, deps.compile, compile
+# Compile codebase
+COPY config config
+COPY lib lib
+COPY priv priv
+RUN mix compile
 
-RUN \
-  mkdir -p /opt/built && \
-  mix release --verbose && \
-  cp _build/${MIX_ENV}/rel/boreale/releases/${APP_VSN}/boreale.tar.gz /opt/built && \
-  cd /opt/built && \
-  tar -xzf boreale.tar.gz && \
-  rm boreale.tar.gz
+# Build OTP release
+RUN mix release
 
-FROM alpine:${ALPINE_VERSION}
+#
+# Step 2 - build a lean runtime container
+#
+FROM alpine:3.15.0
 
-RUN apk update && \
-    apk add --no-cache \
-      bash \
-      openssl \
-      openssl-dev
+ARG APP_NAME
+ARG APP_VERSION
 
-WORKDIR /opt/app
+ENV APP_NAME=${APP_NAME} \
+  APP_VERSION=${APP_VERSION}
 
-COPY --from=builder /opt/built .
+# Install Alpine dependencies
+RUN apk update --no-cache && \
+  apk upgrade --no-cache && \
+  apk add --no-cache bash openssl libgcc libstdc++
 
-CMD trap 'exit' INT; /opt/app/bin/boreale foreground
+WORKDIR /opt/boreale
+
+# Copy OTP binary from step 1
+COPY --from=otp-builder /build/_build/prod/${APP_NAME}-${APP_VERSION}.tar.gz .
+RUN tar -xvzf ${APP_NAME}-${APP_VERSION}.tar.gz && \
+  rm ${APP_NAME}-${APP_VERSION}.tar.gz
+
+# Copy the entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin
+RUN chmod a+x /usr/local/bin/docker-entrypoint.sh
+
+COPY boreale-cli.sh bin/boreale-cli
+RUN chmod u+x bin/boreale-cli
+
+# Create a non-root user
+RUN adduser -D boreale && chown -R boreale: /opt/boreale
+
+USER boreale
+
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["start"]

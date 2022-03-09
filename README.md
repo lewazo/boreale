@@ -51,7 +51,7 @@ The easiest way to get started with the Docker release is using docker-compose. 
 
 So inside `/mnt/user/appdata/boreale`, place the `.env` and `docker-compose.yml` files from the [examples here](examples/) and edit them accordingly. Avoid leaving empty variables inside the `.env`. Check [all the variables here](#environment-variables) to see which ones are required or optional.
 
-Create a `data` directory inside the previous directory for the docker volume. For me that would be `/mnt/user/appdata/boreale/data`. You can name it however you want as long as the correct name is set in the `docker-compose.yml` file.
+Create a `data` directory inside the previous directory for the docker volume. For me that would be `/mnt/user/appdata/boreale/data`. You can name it however you want as long as the correct name is set in the `docker-compose.yml` file.
 
 Run `docker-compose up` to launch Boréale.
 

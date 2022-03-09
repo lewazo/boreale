@@ -1,10 +1,8 @@
-defmodule Mix.Tasks.Cli.Users do
+defmodule Boreale.Tasks.Cli.Users do
+  alias Boreale.Storage
+
   def run do
-    {:ok, table} =
-      File.cwd!()
-      |> Path.join("data/users.dets")
-      |> String.to_atom()
-      |> :dets.open_file(type: :set)
+    {:ok, table} = :dets.open_file(Storage.persisted_users_filepath(), type: :set)
 
     users =
       :dets.match(table, {:"$1", :"$2", :"$3"})

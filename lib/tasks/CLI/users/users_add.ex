@@ -1,5 +1,6 @@
-defmodule Mix.Tasks.Cli.UsersAdd do
-  alias Mix.Tasks.Cli
+defmodule Boreale.Tasks.Cli.UsersAdd do
+  alias Boreale.Storage
+  alias Boreale.Tasks.Cli
 
   def run(args) do
     args = Cli.Utils.args_to_map(args)
@@ -8,7 +9,7 @@ defmodule Mix.Tasks.Cli.UsersAdd do
       %{"--help" => _} ->
         Cli.Utils.print_help_for("users add")
 
-      x when x == %{} ->
+      %{} ->
         add_user()
 
       _ ->
@@ -23,8 +24,8 @@ defmodule Mix.Tasks.Cli.UsersAdd do
 
     if String.length(username) >= 3 and String.length(password) >= 6 do
       case insert_user({username, password}) do
-        {:ok} -> IO.puts("User #{username} has been added.")
-        {:error, msg} -> IO.puts(msg)
+        {:error, message} -> IO.puts(message)
+        _ -> IO.puts("User #{username} has been added.")
       end
     else
       IO.puts("Username have to be at least three characters long.")
@@ -32,19 +33,21 @@ defmodule Mix.Tasks.Cli.UsersAdd do
     end
   end
 
-  defp insert_user({u, p}) do
+  defp insert_user({username, password}) do
     date_time = DateTime.utc_now()
 
-    {:ok, table} =
-      File.cwd!()
-      |> Path.join("data/users.dets")
-      |> String.to_atom()
-      |> :dets.open_file(type: :set)
+    {:ok, table} = :dets.open_file(Storage.persisted_users_filepath(), type: :set)
 
-    created? = :dets.insert_new(table, {u, Bcrypt.hash_pwd_salt(p), date_time})
+    hashed_password = Bcrypt.hash_pwd_salt(password)
+    created? = :dets.insert_new(table, {username, hashed_password, date_time})
+
     :dets.close(table)
 
-    if created?, do: {:ok}, else: {:error, "The user #{u} already exists."}
+    if created? do
+      :ok
+    else
+      {:error, "The user #{username} already exists."}
+    end
   end
 
   # Password prompt that hides input by every 1ms

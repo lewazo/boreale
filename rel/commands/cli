@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-release_remote_ctl rpc --mfa "Mix.Tasks.Cli.run/1" --argv -- "$@"

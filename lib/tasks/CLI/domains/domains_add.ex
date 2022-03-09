@@ -1,5 +1,6 @@
-defmodule Mix.Tasks.Cli.DomainsAdd do
-  alias Mix.Tasks.Cli
+defmodule Boreale.Tasks.Cli.DomainsAdd do
+  alias Boreale.Storage
+  alias Boreale.Tasks.Cli
 
   def run(args) do
     args = Cli.Utils.args_to_map(args)
@@ -8,7 +9,7 @@ defmodule Mix.Tasks.Cli.DomainsAdd do
       %{"--help" => _} ->
         Cli.Utils.print_help_for("domains add")
 
-      x when x == %{} ->
+      %{} ->
         add_domain()
 
       _ ->
@@ -32,12 +33,7 @@ defmodule Mix.Tasks.Cli.DomainsAdd do
 
   defp insert_domain(domain) do
     date_time = DateTime.utc_now()
-
-    {:ok, table} =
-      File.cwd!()
-      |> Path.join("data/domains.dets")
-      |> String.to_atom()
-      |> :dets.open_file(type: :set)
+    {:ok, table} = :dets.open_file(Storage.persisted_domains_filepath(), type: :set)
 
     created? = :dets.insert_new(table, {domain, date_time})
     :dets.close(table)

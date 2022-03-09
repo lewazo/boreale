@@ -4,28 +4,34 @@ defmodule Boreale.SSL do
   It does not need to be signed by an authority since the auth server is not meant to be accessed
   directly by an hostname.
   """
-
   require Logger
 
-  @spec generate_cert :: {:error, any()} | :ok
-  def generate_cert do
-    File.mkdir(data_folder())
+  alias Boreale.Storage
 
-    if cert_exists?() do
+  @cert_file_name "cert.pem"
+  @key_file_name "key.pem"
+
+  @spec maybe_generate_certificate :: {:error, any()} | :ok
+  def maybe_generate_certificate do
+    if certificate_exists?() do
       :ok
     else
-      case openssl_generate() do
-        {_, 0} ->
-          :ok
-
-        {stdout, _} ->
-          Logger.error(stdout)
-          {:error, stdout}
-      end
+      generate_certificate()
     end
   end
 
-  defp openssl_generate do
+  defp generate_certificate do
+    case run_openssl_command() do
+      {_, 0} ->
+        :ok
+
+      {stdout, _} ->
+        Logger.error(stdout)
+        {:error, stdout}
+    end
+  end
+
+  defp run_openssl_command do
     System.cmd("openssl", [
       "req",
       "-new",
@@ -38,24 +44,21 @@ defmodule Boreale.SSL do
       "-subj",
       "/C=US/ST=Denial/L=Springfield/O=Dis/CN=localhost",
       "-keyout",
-      key_file(),
+      get_key_path(),
       "-out",
-      cert_file()
+      get_certificate_path()
     ])
   end
 
-  defp cert_exists?, do: File.exists?(cert_file())
+  defp certificate_exists?, do: File.exists?(get_certificate_path())
 
-  @root_folder "data"
-  defp data_folder, do: Path.join(File.cwd!(), @root_folder)
+  @spec get_certificate_path :: String.t()
+  def get_certificate_path do
+    Path.join(Storage.user_directory_path(), @cert_file_name)
+  end
 
-  defp data_file(file_name), do: Path.join(data_folder(), file_name)
-
-  @cert_file_name "cert.pem"
-  @spec cert_file :: String.t()
-  def cert_file, do: data_file(@cert_file_name)
-
-  @key_file_name "key.pem"
-  @spec key_file :: String.t()
-  def key_file, do: data_file(@key_file_name)
+  @spec get_key_path :: String.t()
+  def get_key_path do
+    Path.join(Storage.user_directory_path(), @key_file_name)
+  end
 end

@@ -22,7 +22,12 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 boreale-*.tar
 
-.vagrant/
-*.log
-/data/
-.env
+# Temporary files, for example, from tests.
+/tmp/
+
+# Ignore runtime data files.
+/priv/data/*
+/priv/static/*
+
+# Local environment variable files
+.env.local

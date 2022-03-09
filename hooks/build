@@ -1,3 +1,0 @@
-#!/bin/bash
-APP_VSN=$(grep 'version:' mix.exs | cut -d '"' -f2)
-docker build --build-arg APP_VSN=$APP_VSN -f $DOCKERFILE_PATH -t $IMAGE_NAME .

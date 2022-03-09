@@ -1,5 +1,6 @@
-defmodule Mix.Tasks.Cli.UsersRemove do
-  alias Mix.Tasks.Cli
+defmodule Boreale.Tasks.Cli.UsersRemove do
+  alias Boreale.Storage
+  alias Boreale.Tasks.Cli
 
   def run(args) do
     args = Cli.Utils.args_to_map(args)
@@ -8,7 +9,7 @@ defmodule Mix.Tasks.Cli.UsersRemove do
       %{"--help" => _} ->
         Cli.Utils.print_help_for("users remove")
 
-      x when x == %{} ->
+      %{} ->
         remove_user()
 
       _ ->
@@ -22,11 +23,7 @@ defmodule Mix.Tasks.Cli.UsersRemove do
 
     with {:users_not_empty} <- is_users_empty?(users),
          {:ok, username} <- get_user(users) do
-      {:ok, table} =
-        File.cwd!()
-        |> Path.join("data/users.dets")
-        |> String.to_atom()
-        |> :dets.open_file(type: :set)
+      {:ok, table} = :dets.open_file(Storage.persisted_users_filepath(), type: :set)
 
       deleted? = :dets.delete(table, username)
       :dets.close(table)

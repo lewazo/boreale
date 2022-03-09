@@ -1,5 +1,6 @@
-defmodule Mix.Tasks.Cli.DomainsRemove do
-  alias Mix.Tasks.Cli
+defmodule Boreale.Tasks.Cli.DomainsRemove do
+  alias Boreale.Storage
+  alias Boreale.Tasks.Cli
 
   def run(args) do
     args = Cli.Utils.args_to_map(args)
@@ -8,7 +9,7 @@ defmodule Mix.Tasks.Cli.DomainsRemove do
       %{"--help" => _} ->
         Cli.Utils.print_help_for("domains remove")
 
-      x when x == %{} ->
+      %{} ->
         remove_domain()
 
       _ ->
@@ -22,11 +23,7 @@ defmodule Mix.Tasks.Cli.DomainsRemove do
 
     with {:domains_not_empty} <- is_domains_empty?(domains),
          {:ok, domain_name} <- get_domain(domains) do
-      {:ok, table} =
-        File.cwd!()
-        |> Path.join("data/domains.dets")
-        |> String.to_atom()
-        |> :dets.open_file(type: :set)
+      {:ok, table} = :dets.open_file(Storage.persisted_domains_filepath(), type: :set)
 
       deleted? = :dets.delete(table, domain_name)
       :dets.close(table)

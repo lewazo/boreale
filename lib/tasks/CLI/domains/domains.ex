@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Cli.Domains do
+defmodule Boreale.Tasks.Cli.Domains do
   def run do
     {:ok, table} =
       File.cwd!()

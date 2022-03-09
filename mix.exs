@@ -4,18 +4,18 @@ defmodule Boreale.MixProject do
   def project do
     [
       app: :boreale,
-      version: "1.0.0",
-      elixir: "~> 1.8.1",
+      version: "1.1.0",
+      elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      elixirc_paths: elixirc_paths(Mix.env())
+      releases: releases()
     ]
   end
 
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:eex, :logger, :plug_cowboy],
+      extra_applications: [:logger],
       mod: {Boreale.Application, []}
     ]
   end
@@ -23,14 +23,20 @@ defmodule Boreale.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:plug_cowboy, "~> 2.0"},
-      {:bcrypt_elixir, "~> 2.0"},
-      {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
-      {:distillery, "~> 2.0"},
-      {:mock, "~> 0.3.0", only: :test}
+      {:bcrypt_elixir, "~> 3.0"},
+      {:credo, "~> 1.6"},
+      {:plug_cowboy, "~> 2.5"}
     ]
   end
 
-  defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_), do: ["lib"]
+  defp releases do
+    [
+      boreale: [
+        version: {:from_app, :boreale},
+        applications: [boreale: :permanent],
+        include_executables_for: [:unix],
+        steps: [:assemble, :tar]
+      ]
+    ]
+  end
 end
