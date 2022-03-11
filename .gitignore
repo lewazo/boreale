@@ -26,8 +26,9 @@ boreale-*.tar
 /tmp/
 
 # Ignore runtime data files.
-/priv/data/*
-/priv/static/*
+/priv/data/
 
 # Local environment variable files
 .env.local
+
+docker-compose.yml

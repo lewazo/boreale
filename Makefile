@@ -5,6 +5,7 @@ APP_NAME = `grep -Eo 'app: :\w*' mix.exs | cut -d ':' -f 3`
 APP_VERSION = `grep -Eo 'version: "[0-9\.]*"' mix.exs | cut -d '"' -f 2`
 GIT_REVISION = `git rev-parse HEAD`
 DOCKER_IMAGE_TAG ?= 'latest'
+DOCKER_NAMESPACE ?= 'lewazo'
 DOCKER_REGISTRY ?= 'registry.hub.docker.com'
 
 # Introspection targets
@@ -29,6 +30,9 @@ header:
 	@printf "\033[33m%-23s\033[0m" "DOCKER_IMAGE_TAG"
 	@printf "\033[35m%s\033[0m" $(DOCKER_IMAGE_TAG)
 	@echo ""
+	@printf "\033[33m%-23s\033[0m" "DOCKER_NAMESPACE"
+	@printf "\033[35m%s\033[0m" $(DOCKER_NAMESPACE)
+	@echo ""
 	@printf "\033[33m%-23s\033[0m" "DOCKER_REGISTRY"
 	@printf "\033[35m%s\033[0m" $(DOCKER_REGISTRY)
 	@echo "\n"
@@ -52,8 +56,8 @@ build: ## Build the Docker image for the OTP release
 
 .PHONY: push
 push: ## Push the Docker image
-	docker tag $(APP_NAME):$(DOCKER_IMAGE_TAG) $(DOCKER_REGISTRY)/$(APP_NAME):$(DOCKER_IMAGE_TAG)
-	docker push $(DOCKER_REGISTRY)/$(APP_NAME):$(DOCKER_IMAGE_TAG)
+	docker tag lewazo/$(APP_NAME):$(DOCKER_IMAGE_TAG) $(DOCKER_REGISTRY)/lewazo/$(APP_NAME):$(DOCKER_IMAGE_TAG)
+	docker push $(DOCKER_REGISTRY)/lewazo/$(APP_NAME):$(DOCKER_IMAGE_TAG)
 
 # Development targets
 # -------------------
@@ -97,8 +101,7 @@ format: ## Format project files
 	mix format
 
 .PHONY: lint
-lint:
-	lint-elixir
+lint: lint-elixir
 
 .PHONY: lint-elixir
 lint-elixir:

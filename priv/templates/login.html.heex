@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <title><%= title %></title>
+    <style><%= style %></style>
+  </head>
+
+  <body>
+    <%= body %>
+  </body>
+
+  <script>
+    const form = document.getElementById("form");
+    form.addEventListener("submit", (e) => {
+      const formData = new FormData(form);
+      const xhr = new XMLHttpRequest();
+
+      formData.append("action", "login");
+
+      xhr.open("GET", "/", true);
+      xhr.setRequestHeader("Auth-Form", new URLSearchParams(formData).toString());
+      xhr.withCredentials = true;
+      xhr.onload = (e) => {
+        if (xhr.status == 300) {
+          window.location = window.location.href;
+        } else {
+          alert(xhr.response);
+        }
+      };
+
+      xhr.send(formData);
+      e.preventDefault();
+    }, false);
+  </script>
+</html>
+

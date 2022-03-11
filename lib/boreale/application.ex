@@ -5,17 +5,20 @@ defmodule Boreale.Application do
 
   use Application
 
-  alias Boreale.{Assets, SSL}
+  alias Boreale.SSL
+
+  require Logger
 
   @impl true
   def start(_type, _args) do
-    init_boreale_server()
+    SSL.maybe_generate_certificate()
 
     children = [
       {Plug.Cowboy,
        scheme: :https,
        plug: BorealeWeb.Router,
-       options: [port: port()],
+       port: port(),
+       otp_app: :boreale,
        keyfile: SSL.get_key_path(),
        certfile: SSL.get_certificate_path()}
     ]
@@ -23,12 +26,11 @@ defmodule Boreale.Application do
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Boreale.Supervisor]
-    Supervisor.start_link(children, opts)
-  end
+    {:ok, pid} = Supervisor.start_link(children, opts)
 
-  defp init_boreale_server do
-    SSL.maybe_generate_certificate()
-    Assets.prepare_static_assets()
+    Logger.info("Endpoint started")
+
+    {:ok, pid}
   end
 
   defp port do

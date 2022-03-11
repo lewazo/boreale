@@ -1,17 +1,27 @@
 defmodule Boreale.Storage do
-  alias Boreale.User
-
-  @spec priv_directory_path :: String.t()
-  def priv_directory_path, do: :code.priv_dir(:boreale)
+  alias Boreale.{Domain, User}
 
   @spec user_directory_path :: String.t()
   def user_directory_path do
-    Path.join(priv_directory_path(), user_directory())
+    Application.get_env(:boreale, __MODULE__)[:user_directory]
+  end
+
+  @spec default_directory_path :: String.t()
+  def default_directory_path do
+    Application.get_env(:boreale, __MODULE__)[:default_directory]
+    |> get_app_dir()
   end
 
   @spec hosted_directory_path :: String.t()
   def hosted_directory_path do
-    Path.join(priv_directory_path(), hosted_directory())
+    Application.get_env(:boreale, __MODULE__)[:hosted_directory]
+    |> get_app_dir()
+  end
+
+  @spec templates_directory_path :: String.t()
+  def templates_directory_path do
+    Application.get_env(:boreale, __MODULE__)[:templates_directory]
+    |> get_app_dir()
   end
 
   @spec persisted_users_filepath :: atom()
@@ -36,11 +46,29 @@ defmodule Boreale.Storage do
     end
   end
 
+  @spec get_domains() :: list(String.t())
+  def get_domains do
+    persisted_domains_filepath()
+    |> list_table()
+    |> Domain.dets_domain_to_struct()
+  end
+
+  defp get_app_dir(filepath) do
+    Application.app_dir(:boreale, filepath)
+  end
+
   defp lookup_table(filepath, key) do
     table = open_table(filepath)
     object = :dets.lookup(table, key)
     close_table(table)
     object
+  end
+
+  defp list_table(filepath) do
+    table = open_table(filepath)
+    objects = :dets.match(table, {:"$1", :"$2"})
+    close_table(table)
+    objects
   end
 
   defp open_table(filepath) do
@@ -50,13 +78,5 @@ defmodule Boreale.Storage do
 
   defp close_table(table) do
     :dets.close(table)
-  end
-
-  defp user_directory do
-    Application.get_env(:boreale, __MODULE__)[:user_directory]
-  end
-
-  defp hosted_directory do
-    Application.get_env(:boreale, __MODULE__)[:hosted_directory]
   end
 end

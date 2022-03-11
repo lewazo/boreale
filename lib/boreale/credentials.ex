@@ -16,7 +16,8 @@ defmodule Boreale.Credentials do
     Map.has_key?(session, "username")
   end
 
-  defp domain_public?(_domain) do
-    false
+  defp domain_public?(domain) do
+    domains = Storage.get_domains() |> Enum.map(& &1.host)
+    domain in domains
   end
 end

@@ -1,10 +1,8 @@
 defmodule Boreale.Tasks.Cli.Domains do
+  alias Boreale.Storage
+
   def run do
-    {:ok, table} =
-      File.cwd!()
-      |> Path.join("data/domains.dets")
-      |> String.to_atom()
-      |> :dets.open_file(type: :set)
+    {:ok, table} = :dets.open_file(Storage.persisted_domains_filepath(), type: :set)
 
     domains =
       :dets.match(table, {:"$1", :"$2"})

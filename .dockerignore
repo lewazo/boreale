@@ -4,8 +4,7 @@ _build/
 .vscode/
 deps/
 examples/
-priv/data/*
-priv/static/*
+priv/data/
 test/
 
 .*

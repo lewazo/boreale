@@ -2,9 +2,7 @@ defmodule Boreale.Tasks.Cli do
   alias __MODULE__
 
   @moduledoc "Provides a CLI for basic configuration of Boreale"
-  def run([]) do
-    Cli.Utils.print_general_help()
-  end
+  def run(["", ""]), do: Cli.Utils.print_general_help()
 
   def run([cmd | args]) do
     case cmd do

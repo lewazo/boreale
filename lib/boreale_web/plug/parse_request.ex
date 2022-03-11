@@ -5,14 +5,25 @@ defmodule Boreale.Plug.ParseRequest do
 
   def call(conn, _opts) do
     conn
-    |> get_action()
+    |> parse_params()
     |> fetch_session_cookie()
     |> get_forwarded_domain()
   end
 
-  defp get_action(conn) do
-    action = if conn.params["action"] == "login", do: :login, else: :index
-    assign(conn, :action, action)
+  defp parse_params(conn) do
+    case get_req_header(conn, "auth-form") do
+      [] ->
+        conn
+        |> assign(:action, :index)
+
+      [value] ->
+        %{"username" => username, "password" => password} = URI.decode_query(value)
+
+        conn
+        |> assign(:action, :login)
+        |> assign(:username, username)
+        |> assign(:password, password)
+    end
   end
 
   defp fetch_session_cookie(conn) do
@@ -22,7 +33,12 @@ defmodule Boreale.Plug.ParseRequest do
   end
 
   defp get_forwarded_domain(conn) do
-    domain = get_req_header(conn, "x-forwarded-host")
+    domain =
+      case get_req_header(conn, "x-forwarded-host") do
+        [] -> nil
+        [domain] -> domain
+      end
+
     assign(conn, :domain, domain)
   end
 end
