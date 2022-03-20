@@ -28,7 +28,7 @@ defmodule Boreale.Application do
     opts = [strategy: :one_for_one, name: Boreale.Supervisor]
     {:ok, pid} = Supervisor.start_link(children, opts)
 
-    Logger.info("Endpoint started")
+    Logger.info("Boreale server started on https://localhost:#{port()}")
 
     {:ok, pid}
   end

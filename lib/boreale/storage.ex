@@ -12,12 +12,6 @@ defmodule Boreale.Storage do
     |> get_app_dir()
   end
 
-  @spec hosted_directory_path :: String.t()
-  def hosted_directory_path do
-    Application.get_env(:boreale, __MODULE__)[:hosted_directory]
-    |> get_app_dir()
-  end
-
   @spec templates_directory_path :: String.t()
   def templates_directory_path do
     Application.get_env(:boreale, __MODULE__)[:templates_directory]

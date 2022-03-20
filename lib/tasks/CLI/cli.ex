@@ -2,7 +2,13 @@ defmodule Boreale.Tasks.Cli do
   alias __MODULE__
 
   @moduledoc "Provides a CLI for basic configuration of Boreale"
-  def run(["", ""]), do: Cli.Utils.print_general_help()
+  def run(string) when is_binary(string) do
+    string
+    |> String.split()
+    |> run()
+  end
+
+  def run([]), do: Cli.Utils.print_general_help()
 
   def run([cmd | args]) do
     case cmd do
@@ -21,7 +27,7 @@ defmodule Boreale.Tasks.Cli do
     end
   end
 
-  defp users([""]) do
+  defp users([]) do
     Cli.Users.run()
   end
 
@@ -42,7 +48,7 @@ defmodule Boreale.Tasks.Cli do
     end
   end
 
-  defp domains([""]) do
+  defp domains([]) do
     Cli.Domains.run()
   end
 

@@ -44,7 +44,7 @@ ENV APP_NAME=${APP_NAME} \
 # Install Alpine dependencies
 RUN apk update --no-cache && \
   apk upgrade --no-cache && \
-  apk add --no-cache bash openssl libgcc libstdc++
+  apk add --no-cache bash shadow su-exec openssl libgcc libstdc++
 
 WORKDIR /opt/boreale
 
@@ -62,8 +62,6 @@ RUN chmod u+x bin/boreale-cli
 
 # Create a non-root user
 RUN adduser -D boreale && chown -R boreale: /opt/boreale
-
-USER boreale
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["start"]

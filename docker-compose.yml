@@ -1,0 +1,11 @@
+version: '3.5'
+
+services:
+  boreale:
+    image: "lewazo/boreale:latest"
+    ports:
+      - "5251:4040"
+    env_file:
+      - .env.local
+    volumes:
+      - ./priv/data:/opt/app/data

@@ -1,5 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
-# Launch the OTP release and replace the caller as Process #1 in the container
-exec /opt/$APP_NAME/bin/$APP_NAME "$@"
+USER_ID=${UID:-9001}
+GROUP_ID=${GID:-9001}
+
+groupmod -o -g "$GROUP_ID" boreale
+usermod -o -u "$USER_ID" boreale
+
+echo "
+User uid:    $(id -u boreale)
+User gid:    $(id -g boreale)
+-------------------------------------
+"
+
+exec /sbin/su-exec $USER_ID "/opt/$APP_NAME/bin/$APP_NAME" "$@"

@@ -9,7 +9,7 @@
 Boréale is a tiny and simple self-hosted service to handle forward authentication for services behind [Traefik reverse proxy](https://github.com/containous/traefik).
 
 ## Features
-* Very lightweight, less than 60 MB.
+* Very lightweight, less than 50 MB.
 * User can use a custom login page.
 * SSO for all subdomains.
 * Has no external dependencies.
@@ -30,33 +30,13 @@ The main goal of Boréale is to have a tiny self-contained solution that is more
 * [Traefik Forward Auth](https://github.com/thomseddon/traefik-forward-auth) If you are looking for a Google OAuth-based authentication.
 
 ## Getting Started
-### OTP Release
-Boréale is written in Elixir and compiled using Distillery. This allows for self-contained executable (named OTP releases) that can be run anywhere, without relying on the Elixir and Erlang environements.
+The recommended way of deploying Boréale is through the official Docker image.
 
-As such, you can simply download the release from [GitHub releases](https://github.com/lewazo/boreale/releases) and directly run it.
+Pass all [required environment variables](#environment-variables) with the `-e` option or add them to a `.env` file as shown [in the examples](examples/).
 
-To start it, simply run `./bin/boreale foreground`
+Mount a volume for the `data` directory, which is where the Boréale configurations will live in on the host.
 
-To start it in a background processs, simply run `./bin/boreale start`
-
-**Note:** Make sure all required environment variables are set before launching the app. You can see a list of [all the variables here](#environment-variables). How the environment variables are set is entirely up to you.
-
-### Docker
-While the OTP release is nice and very easy to use, it has the downside of needing to be compiled on an environment similar to the target environment. Currently, I only provide binaries compiled on Ubuntu 18.04 and MacOS Mojave.
-
-This is why the recommended method for deploying Boréale is through Docker. The provided Docker image still uses an OTP release internally, but the release is actually compiled in the image build process. This has the advantage of having the same environment for running and compiling the release. The overall size is still very small, currently sitting at 58 MB.
-
-#### docker-compose
-The easiest way to get started with the Docker release is using docker-compose. First, create a directory for the Boréale configurations to live in. It can be anywhere. Since I use an unRAID system, I put mine with my other docker applications in `/mnt/user/appdata`.
-
-So inside `/mnt/user/appdata/boreale`, place the `.env` and `docker-compose.yml` files from the [examples here](examples/) and edit them accordingly. Avoid leaving empty variables inside the `.env`. Check [all the variables here](#environment-variables) to see which ones are required or optional.
-
-Create a `data` directory inside the previous directory for the docker volume. For me that would be `/mnt/user/appdata/boreale/data`. You can name it however you want as long as the correct name is set in the `docker-compose.yml` file.
-
-Run `docker-compose up` to launch Boréale.
-
-#### docker CLI
-Of course using docker-compose is optional. You can use any containers manager you wish. Here's an example on how to run it directly from the docker CLI. Check the docker-compose section for more info on the `.env` file and `data/` directory.
+You can also use `docker compose` with the `docker-compose.yml` [example provided here](examples/).
 
 ```
 docker run \
@@ -67,28 +47,21 @@ docker run \
   lewazo/boreale
 ```
 
-#### unRAID
-While Boréale isn't available on the Community Applications plugin, you can still install it and use it the same way as any other Docker containers installed with CA by using [my template](https://github.com/lewazo/unraid-docker-templates).
 
 ## Configuration
 Most of the Boréale configuration is done through its CLI. To use the CLI, follow the instructions below depending on your environement.
 
-#### OTP Release
-When using the OTP release, simply run `./bin/boreale cli` to access the CLI.
-
-#### docker-compose
-When using docker-compose, simply run `docker-compose exec boreale bin/boreale cli` in the same directory as your `docker-compose.yml` file.
+#### docker compose
+When using docker compose, simply run `docker compose exec boreale bin/boreale-cli` in the same directory as your `docker-compose.yml` file.
 
 #### Docker CLI
-When using the Docker CLI, you first need to get the container's ID. Run `docker ps` and find the container that has the `lewazo/boreale` image. Then, run `docker exec -it <CONTAINER ID> bin/boreale cli`.
+When using the Docker CLI, you first need to get the container's ID. Run `docker ps` and find the container running the `lewazo/boreale` image. Then, run `docker exec -it <CONTAINER ID> bin/boreale-cli`.
 
-#### Development
-When working in development, you can use the cli using `mix` like `mix cli ...`
 
 ### Traefik
 In order for Traefik to forward the authentication to Boréale, there are some configurations that needs to be done.
 
-In the following snippets, edit `127.0.0.1` for the IP of the host that runs Boréale. Match the port with the one defined in your `docker-compose.yml` or equivalent.
+In the following snippets, edit `127.0.0.1` for the IP of the host that runs Boréale. Match the port with the one forwarded to the container.
 
 We use `insecureSkipVerify = true` so Traefik can trust our self-signed certificate. More info on that [here](#tls).
 
@@ -152,16 +125,18 @@ These are the environment variables that should be set in your `.env` file or se
 |-------------------|--------------------------------------------------------|------------------------|-----------|
 | COOKIE_NAME       | The name for the authentication cookie                 | _boreale_auth          | Optional  |
 | ENCRYPTION_SALT   | The key used for encrypting the cookie                 | *none*                 | Required  |
+| GID               | The group ID of your user on the host                  | 9001                   | Optional  |
 | PAGE_TITLE        | The title of the login page                            | Boréale Authentication | Optional  |
 | PORT              | The listening HTTPS port (OTP release only)            | 4000                   | Optional  |
 | SECRET_KEY_BASE   | The key used for encryption (Must be 64 bytes long)    | *none*                 | Required  |
 | SIGNING_SALT      | The key used for signing the cookie                    | *none*                 | Required  |
 | SSO_DOMAIN_NAME   | The root domain name. Check [here for more info](#sso) | *none*                 | Optional  |
+| UID               | The user ID of your user on the host                   | 9001                   | Optional  |
 
 ## Customization
 Boréale ships with a default login form, but using your own is very easy.
 
-Simply add a `login.html` and `login.css` inside the `data/` directory and it will be automatically used. The only constraints is to have `username` and `password` inputs and a form with the id `form`. Take a look at the [examples here](examples/) to see the code for the default login form.
+Simply add a `login.html` and `login.css` inside the `data/` directory and it will be automatically used. The only constraints is to have `username` and `password` inputs and a form with the id `form`. Take a look at the [examples here](examples/) to see the code for the default login form. Make sure to set the `UID` and `GID` variables as the same as your host's user so that the container can read the files. You can run the `id` command on your host to get the uid and gid.
 
 The following screenshot shows the default login form.
 ![Boréale](screenshot.png)
@@ -176,12 +151,6 @@ Since Boréale is only accessed through Traefik's authentication, using a self-s
 
 ### HSTS
 To protect your services from cookie hijacking and protocol downgrade attacks, you should have HSTS enabled. Since Traefik is the one that's terminating the connection, HSTS should be enabled on it rather than on Boréale.
-
-## Starting dev environment
-
-To start working with the repository, there is no configuration required (unless you want to). You only need to run make target `make dev` to have your local Boreale env working locally on port 4000.
-
-**Note**: The server only listen on https, certificate and key are generated automatically so make sure to access the endpoint under https scheme (`https://localhost:4000`).
 
 ## License
 The source code and binaries of Boréale is subject to the [MIT License]().

@@ -9,6 +9,7 @@ test/
 
 .*
 docker-compose.yml
+LICENSE
 logo.svg
 Makefile
 README.md

@@ -30,5 +30,3 @@ boreale-*.tar
 
 # Local environment variable files
 .env.local
-
-docker-compose.yml

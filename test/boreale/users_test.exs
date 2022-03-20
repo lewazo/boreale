@@ -1,7 +1,7 @@
 defmodule Boreale.UsersTest do
   use Boreale.TestCase
 
-  alias Boreale.{Storage, Users}
+  alias Boreale.{Users, Storage}
 
   setup do
     _ = Users.start_link([])
