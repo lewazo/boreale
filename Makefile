@@ -48,11 +48,12 @@ prepare: ## Install dependencies
 
 .PHONY: build
 build: ## Build the Docker image for the OTP release
-	docker build --build-arg APP_NAME=$(APP_NAME) --build-arg APP_VERSION=$(APP_VERSION) --rm --tag $(DOCKER_NAMESPACE)/$(APP_NAME):$(DOCKER_IMAGE_TAG) .
+	docker build --build-arg APP_NAME=$(APP_NAME) --build-arg APP_VERSION=$(APP_VERSION) --rm --tag $(DOCKER_NAMESPACE)/$(APP_NAME):$(APP_VERSION) .
 
 .PHONY: push
 push: ## Push the Docker image
-	docker push $(DOCKER_NAMESPACE)/$(APP_NAME):$(DOCKER_IMAGE_TAG)
+	docker tag $(DOCKER_NAMESPACE)/$(APP_NAME):$(APP_VERSION) $(DOCKER_NAMESPACE)/$(APP_NAME):$(DOCKER_IMAGE_TAG)
+	docker push $(DOCKER_NAMESPACE)/$(APP_NAME) --all-tags
 
 # Development targets
 # -------------------
