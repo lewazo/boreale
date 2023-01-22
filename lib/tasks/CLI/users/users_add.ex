@@ -19,7 +19,7 @@ defmodule Boreale.Tasks.Cli.UsersAdd do
   end
 
   defp add_user do
-    username = IO.gets("username: ") |> String.trim()
+    username = IO.gets("username: ") |> String.trim() |> String.downcase()
     password = password_prompt("password:") |> String.trim()
 
     if String.length(username) >= 3 and String.length(password) >= 6 do

@@ -13,7 +13,10 @@ defmodule Boreale.Credentials do
   end
 
   defp user_logged_in?(session) do
-    Map.has_key?(session, "username")
+    if username = Map.get(session, "username") do
+      username = String.downcase(username)
+      match?({:ok, _user}, Storage.get_user(username))
+    end
   end
 
   defp domain_public?(domain) do

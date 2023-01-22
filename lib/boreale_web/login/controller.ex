@@ -22,6 +22,8 @@ defmodule BorealeWeb.Login.Controller do
   def index(%{assigns: %{action: :login}} = conn) do
     %{username: username, password: password} = conn.assigns
 
+    username = String.downcase(username)
+
     case Credentials.validate(username, password) do
       :ok ->
         conn
