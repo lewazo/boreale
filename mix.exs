@@ -4,7 +4,7 @@ defmodule Boreale.MixProject do
   def project do
     [
       app: :boreale,
-      version: "1.2.2",
+      version: "1.3.0",
       elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
