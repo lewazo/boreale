@@ -16,6 +16,7 @@ Boréale is a tiny and simple self-hosted service to handle forward authenticati
 * Easy management through the Boréale CLI.
 * Secure and encrypted cookie.
 * Easy to deploy.
+* Supports amd64 and arm64 architectures
 
 ## Why?
 Traefik currently supports some authentication schemes like basic auth and digest. While these works great, they are very limited, non-customizable and requires to log in each time you restart your browser.
